@@ -89,6 +89,39 @@ function Room:leave()
    self._client.rooms[self.room_id] = nil
 end
 
+function Room:update_room_name()
+   local response = self._client._api:get_room_name(self.room_id)
+   if response.name and response.name ~= self.name then
+      self.name = response.name
+      return true
+   end
+   return false
+end
+
+function Room:update_room_topic()
+   local response = self._client._api:get_room_topic(self.room_id)
+   if response and response.topic ~= self.topic then
+      self.topic = response.topic
+      return true
+   end
+   return false
+end
+
+function Room:update_aliases()
+   local response = self._client._api:get_room_state(self.room_id)
+   for _, chunk in ipairs(response) do
+      if chunk.content and chunk.content.aliases then
+         table.sort(chunk.content.aliases)
+         if sorted_string_list_eq(self.aliases, chunk.content.aliases) then
+            return false
+         end
+         self.aliases = chunk.content.aliases
+         return true
+      end
+   end
+   return false
+end
+
 
 local Client = {}
 Client.__name  = "matrix.client"
@@ -182,6 +215,7 @@ function Client:_process_state_event(event, room)
       room.topic = event.content.topic
    elseif event_type == "m.room.aliases" then
       room.aliases = event.content.aliases
+      table.sort(room.aliases)
    end
 end
 
