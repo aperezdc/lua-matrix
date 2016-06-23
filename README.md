@@ -5,6 +5,25 @@ This is closely modelled after the official
 [matrix-python-sdk](https://github.com/matrix-org/matrix-python-sdk).
 
 
+Requirements
+------------
+
+* Lua 5.1, 5.2, 5.3, or LuaJIT — development and testing is only being done
+  with 5.3, YMMV!
+* The [cjson](http://www.kyne.com.au/~mark/software/lua-cjson.php) module.
+* Daurnimator's excellent,
+  [cqueues](http://25thandclement.com/~william/projects/cqueues.html)-based
+  [http](https://github.com/daurnimator/lua-http) module.
+
+If you use [LuaRocks](https://luarocks.org), you can get the dependencies
+installed using the following commands:
+
+```sh
+luarocks install --server=http://luarocks.org/dev http
+luarocks install lua-cjson
+```
+
+
 Usage
 -----
 
