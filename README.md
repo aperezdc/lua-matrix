@@ -23,6 +23,11 @@ luarocks install --server=http://luarocks.org/dev http
 luarocks install lua-cjson
 ```
 
+Self-promotion bit: If you use the [Z shell](http://www.zsh.org/) and want
+something like
+[virtualenv](http://docs.python-guide.org/en/latest/dev/virtualenvs/) for Lua,
+please *do try* [RockZ](https://github.com/aperezdc/rockz).
+
 
 Usage
 -----
