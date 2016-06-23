@@ -7,11 +7,16 @@
 --
 
 local User = {}
+User.__name  = "matrix.user"
 User.__index = User
 
 setmetatable(User, { __call = function (self, client, user_id)
    return setmetatable({ user_id = user_id, _client = client }, User)
 end })
+
+function User:__tostring()
+   return self.__name .. "{" .. self.user_id .. "}"
+end
 
 function User:get_display_name()
    return self._client._api:get_display_name(self.user_id)
@@ -32,6 +37,7 @@ end
 
 
 local Room = {}
+Room.__name  = "matrix.room"
 Room.__index = Room
 
 setmetatable(Room, { __call = function (self, client, room_id)
@@ -42,6 +48,10 @@ setmetatable(Room, { __call = function (self, client, room_id)
       _client = client,
    }, Room)
 end })
+
+function Room:__tostring()
+   return self.__name .. "{" .. self.room_id .. "}"
+end
 
 function Room:send_text(text)
    return self._client._api:send_message(self.room_id, text)
@@ -81,6 +91,7 @@ end
 
 
 local Client = {}
+Client.__name  = "matrix.client"
 Client.__index = Client
 
 setmetatable(Client, { __call = function (self, base_url, token, http_factory)
@@ -94,6 +105,10 @@ setmetatable(Client, { __call = function (self, base_url, token, http_factory)
    end
    return c
 end })
+
+function Client:__tostring()
+   return self.__name .. "{" .. self._api.base_url .. "}"
+end
 
 function Client:register_with_password(username, password, limit)
    return self:_logged_in(self._api:register("m.login.password",

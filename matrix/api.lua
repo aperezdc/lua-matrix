@@ -27,6 +27,7 @@ end
 
 
 local API = {}
+API.__name  = "matrix.api"
 API.__index = API
 
 setmetatable(API, { __call = function (self, base_url, token, http_factory)
@@ -39,6 +40,10 @@ setmetatable(API, { __call = function (self, base_url, token, http_factory)
       _http = require("matrix.factory." .. (http_factory or "chttp"))(),
    }, API)
 end })
+
+function API:__tostring()
+   return self.__name .. "{" .. self.base_url .. "}"
+end
 
 function API:_quote(string)
    return self._http:quote(string)

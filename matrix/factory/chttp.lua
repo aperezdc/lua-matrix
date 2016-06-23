@@ -18,7 +18,12 @@ local CqHttpClient = {
    quote   = function (self, text) return encodeURI(text) end,
    unquote = function (self, text) return decodeURI(text) end,
 }
+CqHttpClient.__name  = "matrix.factory.chttp"
 CqHttpClient.__index = CqHttpClient
+
+function CqHttpClient:__tostring()
+   return self.__name
+end
 
 
 local function headers_to_dict(h)
