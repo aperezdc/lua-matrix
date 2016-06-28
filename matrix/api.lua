@@ -25,6 +25,33 @@ local function get_debug_log_function()
    end
 end
 
+local get_http_factory = function (http_factory)
+   -- The environment variable has precedence, as it is used to aid debugging.
+   do
+      local env_value = os.getenv("MATRIX_API_HTTP_CLIENT")
+      if env_value and #env_value > 0 then
+         http_factory = env_value
+      end
+   end
+   -- Try to import supplied HTTP client libraries, in order of preference.
+   local tries = http_factory and { http_factory } or { "chttp" }
+   local errors = {}
+   for i, http_factory in ipairs(tries) do
+      local ok, factory = pcall(require, "matrix.factory." .. http_factory)
+      if ok then
+         get_http_factory = function () return factory end
+         return get_http_factory()
+      end
+      errors[i] = factory
+   end
+   local errmsg = { "Could not load any HTTP client library:" }
+   for i, name in pairs(tries) do
+      errmsg[#errmsg + 1] = "--- Loading '" .. name .. "'"
+      errmsg[#errmsg + 1] = errors[i]
+   end
+   error(table.concat(errmsg, "\n"))
+end
+
 
 local API = {}
 API.__name  = "matrix.api"
@@ -37,7 +64,7 @@ setmetatable(API, { __call = function (self, base_url, token, http_factory)
       txn_id = 0,
       api_path = "/_matrix/client/r0",  -- TODO: De-hardcode
       _log = get_debug_log_function(),
-      _http = require("matrix.factory." .. (http_factory or "chttp"))(),
+      _http = get_http_factory(http_factory)(),
    }, API)
 end })
 
