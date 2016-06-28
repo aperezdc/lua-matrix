@@ -45,9 +45,6 @@ function API:__tostring()
    return self.__name .. "{" .. self.base_url .. "}"
 end
 
-function API:_quote(string)
-   return self._http:quote(string)
-end
 
 function API:initial_sync(limit)
    return self:_send("GET", "/initialSync", { limit = limit or 1 })
@@ -103,7 +100,7 @@ function API:create_room(options)
 end
 
 function API:join_room(room_id_or_alias)
-   return self:_send("POST", "/join/" .. self:_quote(room_id_or_alias))
+   return self:_send("POST", "/join/" .. self._http.quote(room_id_or_alias))
 end
 
 function API:event_stream(from_token, timeout)
@@ -111,9 +108,10 @@ function API:event_stream(from_token, timeout)
 end
 
 function API:send_state_event(room_id, event_type, content, state_key)
-   local path = "/rooms/" .. self:_quote(room_id) .. "/state/" .. self:_quote(event_type)
+   local path = "/rooms/" .. self._http.quote(room_id) ..
+                "/state/" .. self._http.quote(event_type)
    if state_key then
-      path = path .. "/" .. self:_quote(state_key)
+      path = path .. "/" .. self._http.quote(state_key)
    end
    return self:_send("PUT", path, nil, content)
 end
@@ -123,8 +121,9 @@ function API:send_message_event(room_id, event_type, content, txn_id)
       txn_id = self.txn_id
       self.txn_id = self.txn_id + 1
    end
-   local path = "/rooms/" .. self:_quote(room_id) .. "/send/" ..
-         self:_quote(event_type) .. "/" .. self:_quote(tostring(txn_id))
+   local path = "/rooms/" .. self._http.quote(room_id) .. "/send/" ..
+                self._http.quote(event_type) .. "/" ..
+                self._http.quote(tostring(txn_id))
    return self:_send("PUT", path, nil, content)
 end
 
@@ -149,19 +148,19 @@ function API:send_notice(room_id, text_content)
 end
 
 function API:get_room_name(room_id)
-   return self:_send("GET", "/rooms/" .. self:_quote(room_id) .. "/state/m.room.name")
+   return self:_send("GET", "/rooms/" .. self._http.quote(room_id) .. "/state/m.room.name")
 end
 
 function API:get_room_topic(room_id)
-   return self:_send("GET", "/rooms/" .. self:_quote(room_id) .. "/state/m.room.topic")
+   return self:_send("GET", "/rooms/" .. self._http.quote(room_id) .. "/state/m.room.topic")
 end
 
 function API:leave_room(room_id)
-   return self:_send("POST", "/rooms/" .. self:_quote(room_id) .. "/leave")
+   return self:_send("POST", "/rooms/" .. self._http.quote(room_id) .. "/leave")
 end
 
 function API:invite_user(room_id, user_id)
-   return self:_send("POST", "/rooms/" .. self:_quote(room_id) .. "/invite", nil,
+   return self:_send("POST", "/rooms/" .. self._http.quote(room_id) .. "/invite", nil,
       { user_id = user_id })
 end
 
@@ -170,17 +169,18 @@ function API:kick_user(room_id, user_id, reason)
 end
 
 function API:set_membership(room_id, user_id, membership, reason)
-   local path = "/rooms/" .. self:_quote(room_id) .. "/state/m.room.member/" .. self:_quote(user_id)
+   local path = "/rooms/" .. self._http.quote(room_id) ..
+                "/state/m.room.member/" .. self._http.quote(user_id)
    return self:_send("PUT", path, nil, { membership = membership, reason = reason or "" })
 end
 
 function API:ban_user(room_id, user_id, reason)
-   return self:_send("POST", "/rooms/" .. self:_quote(room_id) .. "/ban", nil,
+   return self:_send("POST", "/rooms/" .. self._http.quote(room_id) .. "/ban", nil,
       { user_id = user_id, reason = reason or "" })
 end
 
 function API:get_room_state(room_id)
-   return self:_send("GET", "/rooms/" .. self:_quote(room_id) .. "/state")
+   return self:_send("GET", "/rooms/" .. self._http.quote(room_id) .. "/state")
 end
 
 function API:get_text_body(text, msg_type)
@@ -199,22 +199,22 @@ function API:media_upload(content, content_type)
 end
 
 function API:get_display_name(user_id)
-   local data = self:_send("GET", "/profile/" .. self:_quote(user_id) .. "/displayname")
+   local data = self:_send("GET", "/profile/" .. self._http.quote(user_id) .. "/displayname")
    return data.displayname
 end
 
 function API:set_display_name(user_id, display_name)
-   return self:_send("PUT", "/profile/" .. self:_quote(user_id) .. "/displayname",
+   return self:_send("PUT", "/profile/" .. self._http.quote(user_id) .. "/displayname",
       nil, { displayname = display_name })
 end
 
 function API:get_avatar_url(user_id)
-   local data = self:_send("GET", "/profile/" .. self:_quote(user_id) .. "/avatar_url")
+   local data = self:_send("GET", "/profile/" .. self._http.quote(user_id) .. "/avatar_url")
    return data.avatar_url
 end
 
 function API:set_avatar_url(user_id, avatar_url)
-   return self:_send("PUT", "/profile/" .. self:_quote(user_id) .. "/avatar_url",
+   return self:_send("PUT", "/profile/" .. self._http.quote(user_id) .. "/avatar_url",
       nil, { avatar_url = avatar_url })
 end
 

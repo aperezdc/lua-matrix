@@ -8,23 +8,18 @@
 
 local request = require "http.request"
 local headers = require "http.headers"
-local util    = require "http.util"
+local dict_to_query = require "http.util" .dict_to_query
 
-local encodeURI, decodeURI = util.encodeURI, util.decodeURI
-local dict_to_query = util.dict_to_query
-
-
-local CqHttpClient = {
-   quote   = function (self, text) return encodeURI(text) end,
-   unquote = function (self, text) return decodeURI(text) end,
+local httpclient = {
+   quote   = require "http.util" .encodeURI,
+   unquote = require "http.util" .decodeURI,
 }
-CqHttpClient.__name  = "matrix.factory.chttp"
-CqHttpClient.__index = CqHttpClient
+httpclient.__name  = "matrix.factory.chttp"
+httpclient.__index = httpclient
 
-function CqHttpClient:__tostring()
+function httpclient:__tostring()
    return self.__name
 end
-
 
 local function headers_to_dict(h)
    local headers = {}
@@ -36,8 +31,7 @@ local function headers_to_dict(h)
    return headers
 end
 
-
-function CqHttpClient:request(log, method, url, query_args, body, headers)
+function httpclient:request(log, method, url, query_args, body, headers)
    do
       local qs = dict_to_query(query_args)
       if #qs > 0 then
@@ -71,5 +65,5 @@ function CqHttpClient:request(log, method, url, query_args, body, headers)
 end
 
 return function ()
-   return setmetatable({}, CqHttpClient)
+   return setmetatable({}, httpclient)
 end
