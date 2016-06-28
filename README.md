@@ -11,9 +11,12 @@ Requirements
 * Lua 5.1, 5.2, 5.3, or LuaJIT — development and testing is only being done
   with 5.3, YMMV!
 * The [cjson](http://www.kyne.com.au/~mark/software/lua-cjson.php) module.
-* Daurnimator's excellent,
-  [cqueues](http://25thandclement.com/~william/projects/cqueues.html)-based
-  [http](https://github.com/daurnimator/lua-http) module.
+* One of the supported HTTP client libraries:
+  - Daurnimator's excellent,
+    [cqueues](http://25thandclement.com/~william/projects/cqueues.html)-based
+    [http](https://github.com/daurnimator/lua-http) module.
+  - [LuaSocket](http://w3.impa.br/~diego/software/luasocket) and (optionally)
+    [LuaSec](https://github.com/brunoos/luasec) for TLS support.
 
 If you use [LuaRocks](https://luarocks.org), you can get the dependencies
 installed using the following commands:
