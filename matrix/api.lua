@@ -266,7 +266,7 @@ function API:_send(method, path, query_args, body, headers, api_path)
       end
       return body
    else
-      return error("HTTP " .. code .. " - " .. body)
+      return error("HTTP " .. tostring(code) .. " - " .. body)
    end
 end
 
