@@ -258,6 +258,7 @@ function API:_send(method, path, query_args, body, headers, api_path)
    end
 
    -- Call the HTTP library.
+   self._log("-!- HTTP client: %s", self._http)
    local code, headers, body = self._http:request(self._log, method:upper(),
       self.base_url .. (api_path or self.api_path) .. path, params, body, headers)
    if code == 200 then
