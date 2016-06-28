@@ -34,7 +34,7 @@ local get_http_factory = function (http_factory)
       end
    end
    -- Try to import supplied HTTP client libraries, in order of preference.
-   local tries = http_factory and { http_factory } or { "chttp" }
+   local tries = http_factory and { http_factory } or { "chttp", "luasocket" }
    local errors = {}
    for i, http_factory in ipairs(tries) do
       local ok, factory = pcall(require, "matrix.factory." .. http_factory)
