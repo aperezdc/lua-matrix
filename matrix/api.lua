@@ -10,7 +10,7 @@ local json = require "cjson"
 
 local function noprintf(...) end
 local function eprintf(fmt, ...)
-   io.stderr:write("[http] ")
+   io.stderr:write("[api] ")
    io.stderr:write(fmt:format(...))
    io.stderr:write("\n")
    io.stderr:flush()
