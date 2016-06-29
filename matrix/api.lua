@@ -17,7 +17,7 @@ local function eprintf(fmt, ...)
 end
 
 local function get_debug_log_function()
-   local env_value = os.getenv("MATRIX_DEBUG_LOG")
+   local env_value = os.getenv("MATRIX_API_DEBUG_LOG")
    if env_value and #env_value > 0 and env_value ~= "0" then
       return eprintf
    else
