@@ -72,9 +72,27 @@ function API:__tostring()
    return self.__name .. "{" .. self.base_url .. "}"
 end
 
-
-function API:initial_sync(limit)
-   return self:_send("GET", "/initialSync", { limit = limit or 1 })
+----
+-- | Option   | Type    | Default Value |
+-- |:=========|:========|===============|
+-- | filter   | string  | nil           |
+-- | since    | string  | nil           |
+-- | full     | boolean | false         |
+-- | online   | boolean | true          |
+-- | timeout  | number  | nil           |
+----
+function API:sync(options)
+   local params
+   if options then
+      params = {
+         filter = options.filter,
+         ince = options.since,
+         full_state = options.full or false,
+         set_presence = online and nil or "offline",
+         timeout = options.timeout,
+      }
+   end
+   return self:_send("GET", "/sync", params)
 end
 
 function API:register(login_type, params)
