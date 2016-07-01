@@ -16,7 +16,11 @@ client:login_with_password(arg[2], arg[3])
 
 local user = client:get_user()
 print("User ID: " .. user.user_id)
-print("Display name: " .. user:get_display_name())
-print("Avatar URL: " .. user:get_avatar_url())
+
+user:hook("property-changed", function (user, property)
+   print("  - " .. property .. ": " .. tostring(user[property]))
+end)
+user:update_display_name()
+user:update_avatar_url()
 
 client:logout()

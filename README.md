@@ -51,8 +51,8 @@ room:send_text("Hello!")
 Low-level `matrix.api` interface:
 
 ```lua
-local matrix_api = require("matrix.api")
-local api = matrix_api("http://localhost:8080")
+local matrix = require("matrix")
+local api = matrix.api("http://localhost:8080")
 local response = api:register("m.login.password",
   { user = "jdoe", password = "sup3rsecr1t" })
 api.token = response.token
