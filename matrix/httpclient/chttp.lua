@@ -14,7 +14,7 @@ local httpclient = {
    quote   = require "http.util" .encodeURI,
    unquote = require "http.util" .decodeURI,
 }
-httpclient.__name  = "matrix.factory.chttp"
+httpclient.__name  = "matrix.client.chttp"
 httpclient.__index = httpclient
 
 function httpclient:__tostring()

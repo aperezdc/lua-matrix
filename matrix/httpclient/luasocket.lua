@@ -41,7 +41,7 @@ local httpclient = {
    quote   = require "socket.url" .escape,
    unquote = require "socket.url" .unescape,
 }
-httpclient.__name  = "matrix.factory.luasocket"
+httpclient.__name  = "matrix.client.luasocket"
 httpclient.__index = httpclient
 
 function httpclient:__tostring()

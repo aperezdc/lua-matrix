@@ -296,12 +296,12 @@ local Client = {}
 Client.__name  = "matrix.client"
 Client.__index = Client
 
-setmetatable(Client, { __call = function (self, base_url, token, http_factory)
+setmetatable(Client, { __call = function (self, base_url, token, http_client)
    local c = eventable.object(setmetatable({
       presence = {},  -- Indexed by user_id
       rooms = {},     -- Indexed by room_id
       _log = get_debug_log_function(),
-      _api = API(base_url, token, http_factory),
+      _api = API(base_url, token, http_client),
    }, Client))
    -- Do an initial sync if a token was provided on construction.
    if token then
