@@ -1,4 +1,3 @@
-#! /usr/bin/env lua
 --
 -- eventable.lua
 -- Copyright (C) 2016 Adrian Perez <aperez@igalia.com>
@@ -32,11 +31,29 @@ local function _expack (args, ...)
    return _unpack(r)
 end
 
-return function (...)
-   local event_map = {}
-   local events = {}
+local log = (function ()
+   local env_value = os.getenv("MATRIX_EVENTABLE_DEBUG_LOG")
+   if env_value and #env_value > 0 and env_value ~= "0" then
+      local out, _tostring = io.stderr, tostring
+      return function (...)
+         out:write("[eventable]")
+         local args = _pack(...)
+         for i = 1, args.n do
+            out:write(" " .. _tostring(args[i]))
+         end
+         out:write("\n")
+         out:flush()
+      end
+   else
+      return function (...) end
+   end
+end)()
 
-   function events.hook(event, handler)
+local function eventable_functions (...)
+   local event_map = {}
+
+   local hook = function (event, handler)
+      log("hook:", event, handler)
       if not handler then
          event_map[event] = nil
       else
@@ -48,10 +65,28 @@ return function (...)
       end
    end
 
+   local unhook = function (event, handler)
+      log("unhook:", event, handler)
+      local old_handlers = event_map[event]
+      if old_handlers then
+         local handlers = {}
+         for i = 1, #old_handlers do
+            local h = old_handlers[i]
+            if h ~= handler then
+               handlers[#handlers + 1] = h
+            end
+         end
+         event_map[event] = handlers
+      end
+   end
+
+   local fire
+
    local nargs = _select("#", ...)
    if nargs == 0 then
       -- Simplest version, no arguments.
-      function events.fire(event, ...)
+      fire = function (event, ...)
+         log("fire: " .. event .. ":", ...)
          local handlers = event_map[event]
          if handlers then
             for i = 1, #handlers do
@@ -65,7 +100,8 @@ return function (...)
    elseif nargs == 1 then
       -- Common single-argument case: optimized.
       local arg = _select(1, ...)
-      function events.fire(event, ...)
+      fire = function (event, ...)
+         log("fire: " .. event .. ":", arg, ...)
          local handlers = event_map[event]
          if handlers then
             for i = 1, #handlers do
@@ -79,7 +115,8 @@ return function (...)
    else
       -- Generic multi-argument case.
       local args = _pack(...)
-      function events.fire(event, ...)
+      fire = function (event, ...)
+         log("fire: " .. event .. ":", _expack(args, ...))
          local handlers = event_map[event]
          if handlers then
             for i = 1, #handlers do
@@ -92,5 +129,26 @@ return function (...)
       end
    end
 
-   return events
+   return fire, hook, unhook
 end
+
+local function eventable_object(obj)
+   local fire, hook, unhook = eventable_functions()
+   function obj:fire(name, ...)
+      return fire(name, self, ...)
+   end
+   function obj:hook(...)
+      hook(...)
+      return self  -- Allow chaining
+   end
+   function obj:unhook(...)
+      unhook(...)
+      return self  -- Allow chaining
+   end
+   return obj
+end
+
+return {
+   functions = eventable_functions,
+   object    = eventable_object,
+}
