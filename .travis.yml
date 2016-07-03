@@ -25,4 +25,4 @@ script:
   - busted -c
 
 after_success:
-  - luacov-coveralls -i matrix/ -e spec/
+  - luacov-coveralls -i matrix/ -e spec/ -e here/
