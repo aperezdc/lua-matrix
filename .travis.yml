@@ -1,0 +1,18 @@
+language: python
+sudo: false
+
+env:
+  matrix:
+    - LUA="lua 5.1"
+    - LUA="lua 5.2"
+    - LUA="lua 5.3"
+
+before_install:
+  - pip install hererocks
+  - hererocks here -r^ --$LUA
+  - export PATH=$PATH:$PWD/here/bin
+  - eval `luarocks path --bin`
+  - lua -v
+
+script:
+  - lua test/eventable.lua
