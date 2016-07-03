@@ -60,3 +60,15 @@ handle_events(api:initial_sync(1))
 response = api:create_room({ alias = "my_room_alias" })
 api:send_text(response.room_id, "Hello!")
 ```
+
+### More Examples
+
+For the low-level `matrix.api`:
+
+* [examples/set-display-name.lua]
+
+For the high-level `matrix.client`:
+
+* [examples/get-user-info.lua]
+
+More examples can be found in the [examples] subdirectory.
