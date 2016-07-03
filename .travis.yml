@@ -12,6 +12,8 @@ before_install:
   - hererocks here -r^ --$LUA
   - export PATH=$PATH:$PWD/here/bin
   - eval `luarocks path --bin`
+
+install:
   - lua -v
 
 script:
