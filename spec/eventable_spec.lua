@@ -78,6 +78,42 @@ describe("matrix.eventable.functions()", function ()
       assert.spy(h1).was_called(2)
       assert.spy(h2).was_called(1)
    end)
+
+   it("allows unhooking all handlers at once", function ()
+      local fire, hook, unhook = assert(eventable.functions())
+
+      local h1 = spy.new(function () end)
+      local h2 = spy.new(function () end)
+      hook("foo", h1)
+      hook("foo", h2)
+      fire("foo")
+      assert.spy(h1).was_called(1)
+      assert.spy(h2).was_called(1)
+
+      unhook("foo")
+      fire("foo")
+      assert.spy(h1).was_called(1)
+      assert.spy(h2).was_called(1)
+   end)
+
+   it("allows retrieving the list of handlers", function ()
+      local fire, hook = assert(eventable.functions())
+      local h = function () end
+      hook("foo", h)
+      assert.same({ h }, hook("foo"))
+      hook("foo", h)
+      assert.same({ h, h }, hook("foo"))
+   end)
+
+   it("unhooks multiple instances of the same handler", function ()
+      local fire, hook, unhook = assert(eventable.functions())
+      local h = function () end
+      hook("foo", h)
+      hook("foo", h)
+      assert.same({ h, h }, hook("foo"))
+      unhook("foo", h)
+      assert.same({}, hook("foo"))
+   end)
 end)
 
 describe("matrix.eventable.object()", function ()

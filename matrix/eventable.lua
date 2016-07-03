@@ -39,19 +39,23 @@ end)()
 
 local function do_hook(event_map, event, handler)
    log("hook:", event, handler)
-   if not handler then
-      event_map[event] = nil
-   else
+   if handler then
       if not event_map[event] then
          event_map[event] = {}
       end
       local handlers = event_map[event]
       handlers[#handlers + 1] = handler
+   else
+      return event_map[event]
    end
 end
 
 local function do_unhook(event_map, event, handler)
    log("unhook:", event, handler)
+   if handler == nil then
+      event_map[event] = nil
+      return
+   end
    local old_handlers = event_map[event]
    if old_handlers then
       local handlers = {}
