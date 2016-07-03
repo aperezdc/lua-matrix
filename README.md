@@ -1,6 +1,9 @@
 Matrix Client-Server API for Lua
 ================================
 
+[![Build Status](https://travis-ci.org/aperezdc/lua-matrix.svg?branch=master)](https://travis-ci.org/aperezdc/lua-matrix)
+[![Coverage Status](https://coveralls.io/repos/github/aperezdc/lua-matrix/badge.svg?branch=master)](https://coveralls.io/github/aperezdc/lua-matrix?branch=master)
+
 This is closely modelled after the official
 [matrix-python-sdk](https://github.com/matrix-org/matrix-python-sdk).
 
