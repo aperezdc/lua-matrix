@@ -314,24 +314,26 @@ function Client:__tostring()
    return self.__name .. "{" .. self._api.base_url .. "}"
 end
 
-function Client:register_with_password(username, password, limit)
+function Client:register_with_password(username, password, no_sync)
    return self:_logged_in(self._api:register("m.login.password",
-      { user = username, password = password }), limit)
+      { user = username, password = password }), no_sync)
 end
 
-function Client:login_with_password(username, password, limit)
+function Client:login_with_password(username, password, no_sync)
    return self:_logged_in(self._api:login("m.login.password",
-      { user = username, password = password }), limit)
+      { user = username, password = password }), no_sync)
 end
 
-function Client:_logged_in(response, limit)
+function Client:_logged_in(response, no_sync)
    self._log("logged-in: %s", response.user_id)
    self.user_id    = response.user_id
    self.homeserver = response.home_server
    self.token      = response.access_token
    self._api.token = response.access_token
    self:fire("logged-in")
-   self:_sync()
+   if not no_sync then
+      self:_sync()
+   end
    return self.token
 end
 
