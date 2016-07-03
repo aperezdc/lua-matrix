@@ -12,9 +12,15 @@ before_install:
   - hererocks here -r^ --$LUA
   - export PATH=$PATH:$PWD/here/bin
   - eval `luarocks path --bin`
-
-install:
   - lua -v
 
+install:
+  - luarocks install luacov-coveralls
+  - luarocks install cluacov
+  - luarocks install busted
+
 script:
-  - lua test/eventable.lua
+  - busted -c
+
+after_success:
+  - luacov-coveralls
