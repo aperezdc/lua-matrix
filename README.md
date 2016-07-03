@@ -56,7 +56,7 @@ local api = matrix.api("http://localhost:8080")
 local response = api:register("m.login.password",
   { user = "jdoe", password = "sup3rsecr1t" })
 api.token = response.token
-handle_events(api:initial_sync(1))
+handle_events(api:sync())
 response = api:create_room({ alias = "my_room_alias" })
 api:send_text(response.room_id, "Hello!")
 ```
