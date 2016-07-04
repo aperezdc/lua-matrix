@@ -429,12 +429,16 @@ function Client:_sync(options)
    end
 end
 
-function Client:sync(niters)
-   while niters == nil or niters > 0 do
-      self:_sync { timeout = 15000 }
-      if niters then
-         niters = niters - 1
-      end
+local function return_false()
+   return false
+end
+
+function Client:sync(stop, timeout)
+   if not stop then
+      stop = return_false
+   end
+   while not stop(self) do
+      self:_sync { timeout = timeout or 15000 }
    end
 end
 
