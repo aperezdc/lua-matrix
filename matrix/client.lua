@@ -178,6 +178,7 @@ function Room:leave()
    self:fire("leave")
    self.client._api:leave_room(self.room_id)
    self.client.rooms[self.room_id] = nil
+   self.client:fire("left", self)
 end
 
 function Room:update_room_name()
