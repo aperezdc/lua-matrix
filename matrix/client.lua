@@ -420,6 +420,15 @@ function Client:_sync(options)
    end
 end
 
+function Client:sync(niters)
+   while niters == nil or niters > 0 do
+      self:_sync { timeout = 15000 }
+      if niters then
+         niters = niters - 1
+      end
+   end
+end
+
 function Client:_sync_handle_room__join(room_id, data)
    local room = self:_make_room(room_id)
    room:_push_events(data.timeline.events)
