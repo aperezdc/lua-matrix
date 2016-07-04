@@ -65,7 +65,7 @@ function httpclient:request(log, method, url, query_args, body, headers)
       source = stringsource(body)
    end
    local result = {}
-   local r, c, h = make_request {
+   local r, c, h, statusline = make_request {
       url     = url,
       method  = method,
       headers = headers,
@@ -74,7 +74,13 @@ function httpclient:request(log, method, url, query_args, body, headers)
    }
    local response = table.concat(result)
 
-   log("<~< %d", c)
+   if not (r and statusline) then
+      local message = #response > 0 and response or "unknown error"
+      log("<!< error: %s", message)
+      return 0, {}, message
+   end
+
+   log("<~< %d (%s)", c, statusline)
    log("<<< %s", response)
 
    return c, h, response
