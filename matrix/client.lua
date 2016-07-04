@@ -361,12 +361,15 @@ function Client:create_room(alias, public, invite)
    return self:_make_room(response.room_id)
 end
 
-function Client:join_room(room_id_or_alias)
-   local response = self._api:join_room(room_id_or_alias)
-   local room = self:_make_room(response.room_id or room_id_or_alias)
-   -- XXX: At this point we might have joined the room, but its state has not
-   --      been synced. Maybe firing the "joined" event should be delayed
-   --      until the next sync (or when the corresponding events come in).
+function Client:join_room(room)
+   if type(room) == "string" then
+      local response = self._api:join_room(room)
+   elseif type(room) == "table" and getmetatable(room) == Room then
+      local response = self._api:join_room(room.room_id)
+   else
+      error("argument #1 must be a string or a room object")
+   end
+   room = self:_make_room(response.room_id)
    self:fire("joined", room)
    return room
 end
