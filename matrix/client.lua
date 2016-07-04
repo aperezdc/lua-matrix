@@ -385,6 +385,15 @@ function Client:_make_user(user_id, display_name, avatar_url)
    return user
 end
 
+local function xpcall_add_traceback(errmsg)
+   local tb = debug.traceback(nil, nil, 2)
+   if errmsg then
+      return errmsg .. "\n" .. tb
+   else
+      return tb
+   end
+end
+
 function Client:_sync(options)
    if not options then
       options = {}
@@ -401,7 +410,7 @@ function Client:_sync(options)
          -- XXX: Maybe this is abusing pcall() too much to allow handler
          --      code to bail and continue with the next room instead of
          --      completely failing to sync. Dunno.
-         local ok, err = pcall(handle, self, room_id, room_data)
+         local ok, err = xpcall(handle, xpcall_add_traceback, self, room_id, room_data)
          if not ok then
             self._log("sync: Error handling '%s' event for room %s:\n%s", kind, room_id, err)
             self._log("sync: Event payload: %s", json.encode(room_data))
