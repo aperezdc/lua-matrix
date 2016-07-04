@@ -75,5 +75,6 @@ For the high-level `matrix.client`:
 
 * [examples/get-user-info.lua](./examples/get-user-info.lua)
 * [examples/client-send-message.lua](./examples/client-send-message.lua)
+* [examples/echobot.lua](./examples/echobot.lua)
 
 More examples can be found in the [examples](./examples) subdirectory.
