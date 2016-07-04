@@ -292,6 +292,10 @@ function Room:_push_event__m__room__member(event)
    end
 end
 
+function Room:_push_event__m__room__message(event)
+   self:fire("message", event.sender, event.content, event)
+end
+
 
 local Client = {}
 Client.__name  = "matrix.client"
