@@ -23,7 +23,7 @@ end
 
 local function headers_to_dict(h)
    local headers = {}
-   for name, value in pairs(h) do
+   for name, value in h:each() do
       if name:sub(1, 1) ~= ":" then
          headers[name] = value
       end
