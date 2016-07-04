@@ -82,7 +82,7 @@ User.__index = User
 setmetatable(User, { __call = function (self, client, user_id)
    return eventable.object(setmetatable({
       user_id = user_id,
-      _client = client,
+      client  = client,
    }, User))
 end })
 
@@ -95,23 +95,23 @@ function User:__eq(other)
 end
 
 function User:_log(fmt, ...)
-   self._client._log("{%s} " .. fmt, self.user_id, ...)
+   self.client._log("{%s} " .. fmt, self.user_id, ...)
 end
 
 function User:update_display_name(value)
    if value and value ~= self.display_name then
-      self._client._api:set_display_name(self.user_id, value)
+      self.client._api:set_display_name(self.user_id, value)
    elseif not value then
-      value = self._client._api:get_display_name(self.user_id)
+      value = self.client._api:get_display_name(self.user_id)
    end
    return set_simple_property(self, "display_name", value)
 end
 
 function User:update_avatar_url(value)
    if value and value ~= self.avatar_url then
-      self._client._api:set_avatar_url(self.user_id, value)
+      self.client._api:set_avatar_url(self.user_id, value)
    elseif not value then
-      value = self._client._api:get_avatar_url(self.user_id)
+      value = self.client._api:get_avatar_url(self.user_id)
    end
    return set_simple_property(self, "avatar_url", value)
 end
@@ -127,7 +127,7 @@ setmetatable(Room, { __call = function (self, client, room_id)
       aliases = {},
       members = {},
       invited = {},
-      _client = client,
+      client  = client,
    }, Room))
 end })
 
@@ -140,48 +140,48 @@ function Room:__eq(other)
 end
 
 function Room:_log(fmt, ...)
-   self._client._log("{%s} " .. fmt, self.room_id, ...)
+   self.client._log("{%s} " .. fmt, self.room_id, ...)
 end
 
 function Room:send_text(text)
-   return self._client._api:send_message(self.room_id, text)
+   return self.client._api:send_message(self.room_id, text)
 end
 
 function Room:send_emote(text)
-   return self._client._api:send_emote(self.room_id, text)
+   return self.client._api:send_emote(self.room_id, text)
 end
 
 function Room:send_notice(text)
-   return self._client._api:send_notice(self.room_id, text)
+   return self.client._api:send_notice(self.room_id, text)
 end
 
 function Room:invite_user(user_id)
    -- XXX: Do we really want to pcall(), or should error propagate?
-   return pcall(self._client._api.invite_user,
-      self._client._api, self.room_id, user_id)
+   return pcall(self.client._api.invite_user,
+      self.client._api, self.room_id, user_id)
 end
 
 function Room:kick_user(user_id)
    -- XXX: Do we really want to pcall(), or should error propagate?
-   return pcall(self._client._api.kick_user,
-      self._client._api, self.room_id, user_id)
+   return pcall(self.client._api.kick_user,
+      self.client._api, self.room_id, user_id)
 end
 
 function Room:ban_user(user_id)
    -- XXX: Do we really want to pcall(), or should error propagate?
-   return pcall(self._client._api.ban_user,
-      self._client._api, self.room_id, user_id)
+   return pcall(self.client._api.ban_user,
+      self.client._api, self.room_id, user_id)
 end
 
 function Room:leave()
    -- XXX: Maybe this should use pcall()?
    self:fire("leave")
-   self._client._api:leave_room(self.room_id)
-   self._client.rooms[self.room_id] = nil
+   self.client._api:leave_room(self.room_id)
+   self.client.rooms[self.room_id] = nil
 end
 
 function Room:update_room_name()
-   local response = self._client._api:get_room_name(self.room_id)
+   local response = self.client._api:get_room_name(self.room_id)
    if response.name and response.name ~= self.name then
       return set_simple_property(self, "name", response.name)
    end
@@ -189,7 +189,7 @@ function Room:update_room_name()
 end
 
 function Room:update_room_topic()
-   local response = self._client._api:get_room_topic(self.room_id)
+   local response = self.client._api:get_room_topic(self.room_id)
    if response and response.topic ~= self.topic then
       return set_simple_property(self, "topic", response.topic)
    end
@@ -197,7 +197,7 @@ function Room:update_room_topic()
 end
 
 function Room:update_aliases()
-   local response = self._client._api:get_room_state(self.room_id)
+   local response = self.client._api:get_room_state(self.room_id)
    for _, chunk in ipairs(response) do
       if chunk.content and chunk.content.aliases then
          return set_string_list_property(self, "aliases", chunk.content.aliases)
@@ -264,12 +264,12 @@ end
 
 function Room:_push_event__m__room__member(event)
    if event.content.membership == "join" then
-      local user = self._client:_make_user(event.state_key,
+      local user = self.client:_make_user(event.state_key,
          event.content.displayname, event.content.avatar_url)
       self.members[user.user_id] = user
       self:fire("member-joined", user)
    elseif event.content.membership == "invite" then
-      local user = self._client:_make_user(event.state_key,
+      local user = self.client:_make_user(event.state_key,
          event.content.displayname, event.content.avatar_url)
       -- FIXME: Setting property from outside the User object itself.
       set_simple_property(user, "invited_by", event.sender)
@@ -284,7 +284,7 @@ function Room:_push_event__m__room__member(event)
             self.members[user.user_id] = nil
          end
          self:fire("member-left", user)
-         -- TODO: Do we remove the user from self._client.presence??
+         -- TODO: Do we remove the user from self.client.presence??
       end
    else
       error("Unhandled event: " .. json.encode(event))
