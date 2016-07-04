@@ -399,6 +399,7 @@ function Client:_sync(options)
       options = {}
    end
    options.since = self._sync_next_batch
+   self._log("sync: Requesting with next_batch = %s", options.since)
 
    local response = self._api:sync(options)
    self._sync_next_batch = response.next_batch
