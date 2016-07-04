@@ -12,13 +12,11 @@ if #arg ~= 4 then
 end
 
 local client = require "matrix" .client(arg[1])
-client:login_with_password(arg[2], arg[3])
 
--- FIXME: This does not resolve room aliases, it works only with room IDs
-local room = client.rooms[arg[4]]
-if not room then
-   room = client:join_room(arg[4])
-end
+-- Passing "true" as last parameter skips the initial sync, which can be slow
+client:login_with_password(arg[2], arg[3], true)
 
+local room = client:join_room(arg[4])
 room:send_text(io.read("*a"))
+
 client:logout()
