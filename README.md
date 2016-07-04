@@ -69,9 +69,11 @@ api:send_text(response.room_id, "Hello!")
 For the low-level `matrix.api`:
 
 * [examples/set-display-name.lua](./examples/set-display-name.lua)
+* [examples/api-send-message.lua](./examples/api-send-message.lua)
 
 For the high-level `matrix.client`:
 
 * [examples/get-user-info.lua](./examples/get-user-info.lua)
+* [examples/client-send-message.lua](./examples/client-send-message.lua)
 
 More examples can be found in the [examples](./examples) subdirectory.
