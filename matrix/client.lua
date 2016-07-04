@@ -369,15 +369,16 @@ function Client:join_room(room)
    else
       error("argument #1 must be a string or a room object")
    end
-   room = self:_make_room(response.room_id)
-   self:fire("joined", room)
-   return room
+   return self:_make_room(response.room_id)
 end
 
 function Client:_make_room(room_id)
-   assert(not self.rooms[room_id], "Room already exists")
-   local room = Room(self, room_id)
-   self.rooms[room_id] = room
+   local room = self.rooms[room_id]
+   if not room then
+      room = Room(self, room_id)
+      self.rooms[room_id] = room
+      self:fire("joined", room)
+   end
    return room
 end
 
@@ -440,7 +441,6 @@ end
 function Client:_sync_handle_room__join(room_id, data)
    local room = self:_make_room(room_id)
    room:_push_events(data.timeline.events)
-   self:fire("joined", room)
 end
 
 function Client:_sync_handle_room__invite(room_id, data)
