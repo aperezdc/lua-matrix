@@ -86,7 +86,7 @@ function API:sync(options)
    if options then
       params = {
          filter = options.filter,
-         ince = options.since,
+         since = options.since,
          full_state = options.full or false,
          set_presence = online and nil or "offline",
          timeout = options.timeout,
