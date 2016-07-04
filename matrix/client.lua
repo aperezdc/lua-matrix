@@ -63,7 +63,7 @@ local function set_string_list_property(self, name, new_value)
    table.sort(old_value)
    table.sort(new_value)
    if sorted_string_list_eq(old_value, new_value) then
-      self:_log(".%s: [%s] (unachanged)", table.concat(old_value, ", "))
+      self:_log(".%s: [%s] (unchanged)", name, table.concat(old_value, ", "))
       return false
    else
       self[name] = new_value
