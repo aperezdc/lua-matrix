@@ -125,7 +125,7 @@ local function main(tty, client, username, password)
             if ch then
                if ch == "\4" and #line == 0 then
                   print("\r[K")
-                  cq:cancel()
+                  running = false
                   return
                elseif ch == "\127" then
                   line = line:sub(1, -2)
