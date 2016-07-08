@@ -101,18 +101,20 @@ local function main(tty, client, username, password)
 
    local cq = cqueues.new()
    local ok, err, obj = cq:wrap(function ()
-      print(string.format("Terminal size: %dx%d", tty:size()))
       client:login_with_password(username, password)
+
+      local running = true
+      local client_should_stop = function () return not running end
       local clientqueue = cq:wrap(function ()
-         client:sync()
+         client:sync(client_should_stop)
       end)
 
       local current_room
-      while true do
+      while running do
          local line = ""
          while true do
-            io.stdout:write(string.format("\r[K[%s] %s",
-               current_room and current_room.room_id or "*",
+            io.stdout:write(string.format("\r[K[1;1m[%s][0;0m %s",
+               current_room and current_room:get_alias_or_id() or "*",
                line))
             io.stdout:flush()
 
@@ -141,14 +143,14 @@ local function main(tty, client, username, password)
                if client.rooms[params] then
                   current_room = client.rooms[params]
                else
-                  print("\r[K ! No such room")
+                  print("\r[K[1;31m/!\\[0;0m No such room")
                end
             end
          else
             if current_room then
                current_room:send_text(line)
             else
-               print("\r[K ! Choose a room using '/room <room_id>'")
+               print("\r[K[1;31m/!\\[0;0m Choose a room using '/room <room_id>'")
             end
          end
       end
@@ -159,7 +161,7 @@ local function main(tty, client, username, password)
 end
 
 local function print_room_message(room, sender, message, event)
-   print(string.format("\rK[%s] <%s> %s", room.room_id, sender, message.body))
+   print(string.format("\rK[[37m%s[0m] <[36m%s[0m> %s", room.room_id, sender, message.body))
 end
 
 if #arg ~= 3 then
@@ -167,16 +169,24 @@ if #arg ~= 3 then
    os.exit(1)
 end
 
-local client = matrix.client(arg[1])
+--
+-- Force usage of "chttp", the cqueues-based HTTP client library
+--
+local client = matrix.client(arg[1], nil, "chttp")
    :hook("logged-in", function (client)
-      print("\r[K * Logged in as " .. client.user_id)
+      print("\r[K[1;32m *[0;0m Logged in as " .. client.user_id)
    end)
    :hook("joined", function (client, room)
-      print("\r[K * Joined room " .. room.room_id)
+      room:update_aliases()
+      local extra = ""
+      if #room.aliases > 0 then
+         extra = " (" .. table.concat(room.aliases, ", ") .. ")"
+      end
+      print("\r[K[1;32m *[0;0m Joined room " .. room.room_id .. extra)
       room:hook("message", print_room_message)
    end)
    :hook("left", function (client, room)
-      print("\r[K * Left room " .. room.room_id)
+      print("\r[K[1;32m *[0;0m Left room " .. room.room_id)
    end)
 
 tty:wrap(main, client, arg[2], arg[3])
