@@ -207,6 +207,16 @@ function Room:update_aliases()
    return false
 end
 
+function Room:get_alias_or_id()
+   if self.canonical_alias then
+      return self.canonical_alias
+   elseif #self.aliases > 0 then
+      return self.aliases[1]
+   else
+      return self.room_id
+   end
+end
+
 local make_unimplemented_handler = function (self, event)
    local env_value = os.getenv("MATRIX_CLIENT_LOG_UNHANDLED_EVENTS")
    if env_value and #env_value > 0 and env_value ~= "0" then
