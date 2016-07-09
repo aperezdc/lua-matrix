@@ -17,7 +17,19 @@ return function(options)
   end
 
   handler.testStart = function(element, parent, status, debug)
-    io.write('\n   ' .. handler.getFullName(element) .. '\r ')
+    local name = handler.getFullName(element)
+    local len = #name
+    if len > 72 then
+       name = name:sub(1, 72) .. colors.white(" […] ")
+       io.write("\n " .. name)
+    else
+       len = len + 2
+       io.write('\n ' .. name .. " ")
+       for i = 1, 78 - len - 1 do
+          io.write(colors.white('·'))
+       end
+       io.write(" ")
+    end
     io.flush()
   end
 
