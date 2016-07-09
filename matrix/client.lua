@@ -400,6 +400,21 @@ function Client:_make_room(room_id)
    return room
 end
 
+function Client:find_room(room_id_or_alias)
+   for room_id, room in pairs(self.rooms) do
+      if room_id_or_alias == room_id or
+         room_id_or_alias == room.canonical_alias
+      then
+         return room
+      end
+      for _, alias in ipairs(room.aliases) do
+         if room_id_or_alias == alias then
+            return room
+         end
+      end
+   end
+end
+
 function Client:_make_user(user_id, display_name, avatar_url)
    local user = self.presence[user_id]
    if not user then
