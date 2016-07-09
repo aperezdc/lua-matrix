@@ -17,7 +17,7 @@ before_install:
   - lua -v
 
 install:
-  - luarocks install cjson
+  - luarocks install lua-cjson
   - luarocks install luacov-coveralls
   - luarocks install cluacov
   - luarocks install busted
