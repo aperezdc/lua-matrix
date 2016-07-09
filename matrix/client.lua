@@ -210,8 +210,16 @@ end
 function Room:get_alias_or_id()
    if self.canonical_alias then
       return self.canonical_alias
-   elseif #self.aliases > 0 then
+   elseif #self.aliases == 1 then
       return self.aliases[1]
+   elseif #self.aliases > 1 then
+      local shorter_index = 1
+      for index, alias in ipairs(self.aliases) do
+         if #alias < #self.aliases[shorter_index] then
+            shorter_index = index
+         end
+      end
+      return self.aliases[shorter_index]
    else
       return self.room_id
    end
