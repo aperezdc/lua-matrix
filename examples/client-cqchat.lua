@@ -105,8 +105,8 @@ local function main(tty, client, username, password)
 
       local running = true
       local client_should_stop = function () return not running end
-      local clientqueue = cq:wrap(function ()
-         client:sync(client_should_stop)
+      cq:wrap(function ()
+         client:sync(client_should_stop, 3)
       end)
 
       local current_room
@@ -119,18 +119,21 @@ local function main(tty, client, username, password)
             io.stdout:flush()
 
             local handle_tty = false
-            cqueues.poll(tty, 0.05)
+            cqueues.poll(tty, 0.025)
 
             local ch = tty.file:read(1)
             if ch then
-               if ch == "\4" and #line == 0 then
-                  print("\r[K")
+               if ch == "\4" and #line == 0 then  -- EOT (Ctrl-D)
+                  print("\r[K[1;32m *[0;0m Exiting...\r")
+                  cq:cancel()
                   running = false
                   return
-               elseif ch == "\127" then
+               elseif ch == "\127" then  -- DEL
                   line = line:sub(1, -2)
-               elseif ch == "\n" then
+               elseif ch == "\n" then  -- CR
                   break
+               elseif ch:byte() < 32 then
+                  -- Ignore other control characters
                else
                   line = line .. ch
                end
@@ -140,28 +143,33 @@ local function main(tty, client, username, password)
          local command, params = line:match(command_pattern)
          if command then
             if command == "room" then
-               if client.rooms[params] then
-                  current_room = client.rooms[params]
+               local room = client:find_room(params)
+               if room then
+                  current_room = room
                else
-                  print("\r[K[1;31m/!\\[0;0m No such room")
+                  print("\r[K[1;31m/!\\[0;0m No such room\r")
                end
             end
          else
             if current_room then
                current_room:send_text(line)
             else
-               print("\r[K[1;31m/!\\[0;0m Choose a room using '/room <room_id>'")
+               print("\r[K[1;31m/!\\[0;0m Choose a room using '/room <room_id | room_alias>'\r")
             end
          end
       end
    end):loop()
+
+   print("cq:count() -> " .. tostring(cq:count()) .. "\r")
+
    if not ok then
       error(err)
    end
 end
 
 local function print_room_message(room, sender, message, event)
-   print(string.format("\rK[[37m%s[0m] <[36m%s[0m> %s", room.room_id, sender, message.body))
+   print(string.format("\rK[[37m%s[0m] <[36m%s[0m> %s\r",
+      room:get_alias_or_id(), sender, message.body))
 end
 
 if #arg ~= 3 then
@@ -172,9 +180,9 @@ end
 --
 -- Force usage of "chttp", the cqueues-based HTTP client library
 --
-local client = matrix.client(arg[1], nil, "chttp")
+local client = matrix.client(arg[1], "chttp")
    :hook("logged-in", function (client)
-      print("\r[K[1;32m *[0;0m Logged in as " .. client.user_id)
+      print("\r[K[1;32m *[0;0m Logged in as " .. client.user_id .. "\r")
    end)
    :hook("joined", function (client, room)
       room:update_aliases()
@@ -182,11 +190,11 @@ local client = matrix.client(arg[1], nil, "chttp")
       if #room.aliases > 0 then
          extra = " (" .. table.concat(room.aliases, ", ") .. ")"
       end
-      print("\r[K[1;32m *[0;0m Joined room " .. room.room_id .. extra)
+      print("\r[K[1;32m *[0;0m Joined room " .. room.room_id .. extra .. "\r")
       room:hook("message", print_room_message)
    end)
    :hook("left", function (client, room)
-      print("\r[K[1;32m *[0;0m Left room " .. room.room_id)
+      print("\r[K[1;32m *[0;0m Left room " .. room.room_id .. "\n")
    end)
 
 tty:wrap(main, client, arg[2], arg[3])

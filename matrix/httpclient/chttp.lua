@@ -32,10 +32,17 @@ local function headers_to_dict(h)
 end
 
 function httpclient:request(log, method, url, query_args, body, headers)
-   do
+   local timeout = nil
+   if query_args then
       local qs = dict_to_query(query_args)
       if #qs > 0 then
          url = url .. "?" .. qs
+      end
+      if query_args.timeout then
+         -- Matrix API timeout are in milliseconds, convert to seconds
+         -- and give some extra time for DNS resolution, TLS negotiation,
+         -- and so on.
+         timeout = query_args.timeout * 1000 * 1.5
       end
    end
 
@@ -50,7 +57,7 @@ function httpclient:request(log, method, url, query_args, body, headers)
    if body then
       req:set_body(body)
    end
-   local h, s = req:go()
+   local h, s = req:go(timeout)
    if not h then
       log("<!< error: %s", s)
       return 0, {}, s
