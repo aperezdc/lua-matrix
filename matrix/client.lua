@@ -144,15 +144,18 @@ function Room:_log(fmt, ...)
 end
 
 function Room:send_text(text)
-   return self.client._api:send_message(self.room_id, text)
+   -- XXX: How does error handling work here?
+   return self.client._api:send_message(self.room_id, text).event_id
 end
 
 function Room:send_emote(text)
-   return self.client._api:send_emote(self.room_id, text)
+   -- XXX: How does error handling work here?
+   return self.client._api:send_emote(self.room_id, text).event_id
 end
 
 function Room:send_notice(text)
-   return self.client._api:send_notice(self.room_id, text)
+   -- XXX: How does error handling work here?
+   return self.client._api:send_notice(self.room_id, text).event_id
 end
 
 function Room:invite_user(user_id)
