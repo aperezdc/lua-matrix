@@ -465,9 +465,9 @@ function Client:sync(stop, timeout)
    if not stop then
       stop = return_false
    end
-   while not stop(self) do
+   repeat
       self:_sync { timeout = timeout or 15000 }
-   end
+   until stop(self)
 end
 
 function Client:_sync_handle_room__join(room_id, data)
