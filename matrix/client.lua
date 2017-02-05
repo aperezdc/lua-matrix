@@ -435,7 +435,9 @@ function Client:_sync(options)
    if not options then
       options = {}
    end
-   options.since = self._sync_next_batch
+   if not options.since then
+      options.since = self._sync_next_batch
+   end
    self._log("sync: Requesting with next_batch = %s", options.since)
 
    local response = self._api:sync(options)
