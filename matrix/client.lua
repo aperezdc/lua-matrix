@@ -323,43 +323,35 @@ Client.__name  = "matrix.client"
 Client.__index = Client
 
 setmetatable(Client, { __call = function (self, base_url, token, http_client)
-   local c = eventable.object(setmetatable({
+   return eventable.object(setmetatable({
       presence = {},  -- Indexed by user_id
       rooms = {},     -- Indexed by room_id
       _log = get_debug_log_function(),
       _api = API(base_url, token, http_client),
    }, Client))
-   -- Do an initial sync if a token was provided on construction.
-   if token then
-      c:_sync()
-   end
-   return c
 end })
 
 function Client:__tostring()
    return self.__name .. "{" .. self._api.base_url .. "}"
 end
 
-function Client:register_with_password(username, password, no_sync)
+function Client:register_with_password(username, password)
    return self:_logged_in(self._api:register("m.login.password",
-      { user = username, password = password }), no_sync)
+      { user = username, password = password }))
 end
 
-function Client:login_with_password(username, password, no_sync)
+function Client:login_with_password(username, password)
    return self:_logged_in(self._api:login("m.login.password",
-      { user = username, password = password }), no_sync)
+      { user = username, password = password }))
 end
 
-function Client:_logged_in(response, no_sync)
+function Client:_logged_in(response)
    self._log("logged-in: %s", response.user_id)
    self.user_id    = response.user_id
    self.homeserver = response.home_server
    self.token      = response.access_token
    self._api.token = response.access_token
    self:fire("logged-in")
-   if not no_sync then
-      self:_sync()
-   end
    return self.token
 end
 
